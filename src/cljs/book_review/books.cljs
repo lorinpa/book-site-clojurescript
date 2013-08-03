@@ -173,10 +173,6 @@
     ))
 )
 
-;(defn set-null [node]
-;  (gobject/clear node)
-;)
-
 (defn empty-elem [elem]
   (let [  child-list (aget elem "children")
           child-seq (array-seq child-list)
@@ -189,27 +185,6 @@
             )
           )))
 
-
-;; old code - we can delette
-(defn oempty-elem [elem]
-  (let [  
-          child-list (aget elem "children")
-          child-seq (array-seq child-list)
-          cnt (-count child-seq)
-          index-vals (range cnt)
-          list-buffer (atom [])
-        ]
-          (doseq [index index-vals]
-              (swap! list-buffer conj (-nth child-seq index))
-          )
-          (doseq [n (deref list-buffer)]
-             (do 
-               (gdom/removeNode n)
-             ;  (set-null n)
-             )
-          ) 
-        ))
-
 (defn clear-menu-list []
   (let [
         report-details (by-id "report-details")
@@ -218,7 +193,6 @@
     (gdom/removeChildren  report-details)
 
 ))
-
 
 ;we want an option to specify the li element as the recepient
 ;of the attr-key value set (in addition to the child). That way complex menu rows
