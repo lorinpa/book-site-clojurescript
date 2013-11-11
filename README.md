@@ -9,3 +9,6 @@ the Ruby on Rails server implementation located here:
 (https://github.com/lorinpa/book-site-ror)
 
 Also see [my blog article "Leveraging ClojureScript."] (http://public-action.org/mob/polyglot-leveraging-clojurescript.html)
+
+For folks who are following my blog, I am tagging the dev-1.0 
+branch as proj-v1 "Client for ROR server implementation"
