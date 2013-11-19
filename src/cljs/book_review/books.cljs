@@ -263,18 +263,10 @@
       (first results))
 )
 
-;This function is dedicated to negotiating 
-;the relationship between Clojure's vector and 
-;the generated javascript data structure. The generated js data structure
-;includes a "tail" property. "tail" is actually a js array. 
-;we extract the js array and perform a js splice. The result is, we've
-;removed a item from the "list", In clojure list is a vector of atoms. 
-;In js the list is an array of js objects.
-;---
-;Note! When resetting the compiler option to advance, I needed to tweak 
-;this routine and a few others.
-;What works is a similar. Extract the array, perform a js/splice, 
-;then reset the vector to the spliced array values
+; we convert the vector in to an array (using into-array[])
+; next we determent the element's position with the indexOf property
+; we then us the javascript splice function to remove the element from the array
+; finally we convert the array back into the original vector
 (defn remove-item [vector-list item-id]
   (let[   array-instance (into-array (deref vector-list))
           item (get-list-item-by-id vector-list item-id)
