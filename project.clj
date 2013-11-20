@@ -23,9 +23,8 @@
            ]
           :test-commands {
                     "phantom-ws" ["phantomjs" :runner
-                                          "window.literal_js_was_evaluated=true"
                                           "target/cljs/wstestable.js"
-                                          "test/cemerick/cljs/test/extra_test_command_file.js"]
+                                    ]
           } 
   }
 )
