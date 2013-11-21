@@ -897,7 +897,7 @@
   (let [ report-details (by-id "report-details") 
         form (create-form)
         book (get-list-item-by-str BookList book-id)
-        author-select (author-select (:author_id book))
+        author-select-ctrl (author-select (:author_id book))
         title-group (create-input-control-group (:title book) "title" "Book Title")
         id-elem (create-input-elem "hidden" (:id book) "book-id")
         button (create-command-button "Submit" "data-submit" "mod-book" "mod-book")
@@ -906,7 +906,7 @@
       (set-menu-header "Modify Book") 
       (append form title-group)
       (append form id-elem)
-      (append form author-select)
+      (append form author-select-ctrl)
       (append form button)
       (append report-details form)))
 
