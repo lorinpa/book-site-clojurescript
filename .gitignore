@@ -1,0 +1,8 @@
+/node_modules
+/war
+test-readme
+package-lock.json
+/.cpcache
+/.lein-failures
+/target
+/out
