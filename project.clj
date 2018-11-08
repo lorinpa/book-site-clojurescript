@@ -1,30 +1,32 @@
-(defproject book-review "V 2.0"
-  :description "Book Club Site "
+(defproject book-review "V 3.0"
+  :description "Book Club Site"
+  :dependencies [[org.clojure/clojure "1.9.0"]
+                 [org.clojure/clojurescript "1.10.439"]
+                 [doo "0.1.10"]]
   :url "http://public-action.org"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.5.1"]
-                 [org.clojure/clojurescript "0.0-1859"]
-                 [com.cemerick/clojurescript.test "0.2.1"]
-                 ]
-  :plugins [[lein-cljsbuild "0.3.3"] [com.cemerick/clojurescript.test "0.2.1"][marginalia "0.7.1"] [lein-marginalia "0.7.1"]]
-  :cljsbuild
-  {
-    :builds [
-              { :source-paths ["src/cljs" "test" ]
-                :compiler {:output-to "target/cljs/wstestable.js"
-                         :optimizations :whitespace
-                         :pretty-print true}}
-              {:id "prod" :source-paths ["src/cljs"]
-                :compiler {:output-to "target/cljs/books_cljs.js"
-                         :optimizations :whitespace
-                         :pretty-print true}}
-
-           ]
-          :test-commands {
-                    "phantom-ws" ["phantomjs" :runner
-                                          "target/cljs/wstestable.js"
-                                    ]
-          } 
+  :plugins [[lein-cljsbuild "1.1.7"] [lein-doo "0.1.10"]]
+  :doo {
+    :build "test-build" :alias {:default [:firefox-headless]}
+    :paths {:karma "node_modules/karma/bin/karma" }
   }
-)
+  :clean-targets [:target-path "out/js"]
+  :cljsbuild {
+    :builds
+    [ {
+        ; The path to the top-level ClojureScript source directory:
+        :source-paths ["src/cljs" "test" ]
+        ; The standard ClojureScript compiler options:
+        ; (See the ClojureScript compiler documentation for details.)
+        :compiler {
+          :output-to "out/js/main.js"
+          :optimizations :advanced
+          :pretty-print false }
+   }
+   {:id "test-build"
+             :source-paths ["src/cljs" "test"]
+             :compiler {:output-to "out/test/testable.js"
+                        :main book-review.runner
+                        :optimizations :whitespace} }
+    ]})

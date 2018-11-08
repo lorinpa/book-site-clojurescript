@@ -16,3 +16,24 @@ branch as proj-v1 "Client for ROR server implementation"
 Branch dev-2.0 is the client for the corresponding [book-site-jpa] (https://github.com/lorinpa/book-site-jpa) 
 server implementation. The corresponding server is implemented in a stack of Java, Spring, Hibernate,
 JPA, H2 database, and Jetty Web Server.
+
+
+Feature branch "update-to-cljs-version-1.10.x" updates the client to the latest clojure (1.9.0), clojurescript (1.10.x) 
+and Java (11) versions. In addition replaces the deprecated test utility with [doo] (https://github.com/bensu/doo).
+
+Add test utility (doo) dependencies:
+$> npm install karma karma-firefox-launcher --save-dev
+$> npm install karma-cljs-test --save-dev
+
+Run new doo utility test runner
+$> lein doo once
+
+Clean build
+
+$> lein clean
+
+Build the client app
+
+$> lein cljsbuild once
+
+  
