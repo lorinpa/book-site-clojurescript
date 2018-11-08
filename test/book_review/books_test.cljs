@@ -1,9 +1,7 @@
 (ns book-review.books_test
-  (:require-macros [cemerick.cljs.test :refer (is deftest with-test run-tests testing)])
-  (:require [cemerick.cljs.test :as t]
-            [book-review.books :as p]
-  )
+   (:require  [book-review.books :as p] [cljs.test :refer-macros [async deftest is testing]  ]  )
 )
+
 
 (deftest add-authors
   (testing "add authors"

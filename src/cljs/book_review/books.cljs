@@ -6,13 +6,15 @@
     [goog.object :as gobject]
     [goog.json :as gjson]
     [goog.structs :as gstructs]
+    [goog.string :as gstring]
+      goog.string.format
   )
 )
 
 ;; Creates a formatted string of [last name, first name]
 ;; Used to Author names.
 (defn format-name [last first]
-  (format "%s, %s" last first ))
+  (gstring/format "%s, %s" last first ))
 
 ;; Selects and returns an HTML element by it's ID attribute
 (defn by-id [id]
@@ -229,7 +231,7 @@
 
 (defn addReview
   ([id body stars book_id author_id]  
-    (swap! ReviewList conj (Review. id body stars book_id author_id)))
+    (swap! ReviewList conj (Review. id body stars book_id)))
   ([jsonObj] (swap! ReviewList conj (jsonToReview jsonObj)) )
 )
 
@@ -324,14 +326,13 @@
           cnt (-count child-seq)
           index-vals (range cnt)]
           (doseq [index index-vals]
-            (do
+            (try
+              (do
                 (if (elem-has-children (-nth child-seq index))
-                  (empty-elem (-nth child-seq index))
-                )
+                  (empty-elem (-nth child-seq index)))
                 (gdom/removeNode  (-nth child-seq index))
-                (gobject/clear  (-nth child-seq index))
-            )
-          )))
+                (gobject/clear  (-nth child-seq index)))
+              (catch js/Object e)))))
 
 (defn clear-menu-list []
   (let [  report-details (by-id "report-details")
@@ -430,16 +431,16 @@
 (defn render-entity-menu 
   ( [entity]
   (let [ entity-menu-details (by-id "entity-menu-details")
-         add-link (render-menu-item "#" "Add"  "id" (format "add-%s-menu-item" entity) )
+         add-link (render-menu-item "#" "Add"  "id" (gstring/format "add-%s-menu-item" entity) )
       ]
       (append entity-menu-details add-link)
   ))
 
   ( [entity entity-id]
   (let [  entity-menu-details (by-id "entity-menu-details")
-          data-attr (format "data-%s-id" entity)
-          mod-link (render-menu-item "#" "Modify"  "id" (format "modify-%s-menu-item" entity) data-attr entity-id )
-          del-link (render-menu-item "#" "Delete"  "id" (format "delete-%s-menu-item" entity) data-attr entity-id) ]
+          data-attr (gstring/format "data-%s-id" entity)
+          mod-link (render-menu-item "#" "Modify"  "id" (gstring/format "modify-%s-menu-item" entity) data-attr entity-id )
+          del-link (render-menu-item "#" "Delete"  "id" (gstring/format "delete-%s-menu-item" entity) data-attr entity-id) ]
           (append entity-menu-details mod-link)
           (append entity-menu-details del-link) )))
 
@@ -449,17 +450,17 @@
 ;; An example of an "anchor entity" would be a Book. We want to add a BookCategory to a specific book (
 ;; E.G. assign "Be Cool" as a "Comedy"). We would need the id for "Be Cool" just to render the "add new book category" dialog.
 (defn render-relationship-menu
-   ( [relationship anchor-entity anchor-entity-id]
+  ( [relationship anchor-entity anchor-entity-id]
   (let [  entity-menu-details (by-id "entity-menu-details")
-          add-link (render-menu-item "#" "Add"  "id" (format "add-%s-menu-item" relationship) 
-            (format "data-%s-id" anchor-entity) anchor-entity-id)]
+          add-link (render-menu-item "#" "Add"  "id" (gstring/format "add-%s-menu-item" relationship) 
+            (gstring/format "data-%s-id" anchor-entity) anchor-entity-id)]
           (append entity-menu-details add-link) ))
 
   ( [entity entity-id]
   (let [  entity-menu-details (by-id "entity-menu-details")
-          data-attr (format "data-%s-id" entity)
-          mod-link (render-menu-item "#" "Modify"  "id" (format "modify-%s-menu-item" entity) data-attr entity-id )
-          del-link (render-menu-item "#" "Delete"  "id" (format "delete-%s-menu-item" entity) data-attr entity-id) ]
+          data-attr (gstring/format "data-%s-id" entity)
+          mod-link (render-menu-item "#" "Modify"  "id" (gstring/format "modify-%s-menu-item" entity) data-attr entity-id )
+          del-link (render-menu-item "#" "Delete"  "id" (gstring/format "delete-%s-menu-item" entity) data-attr entity-id) ]
           (append entity-menu-details mod-link)
           (append entity-menu-details del-link) )))
 
@@ -595,8 +596,9 @@
         (render-entity-menu "author")
         (set-menu-header "Authors")
         (doseq [author (deref AuthorList)]
-          (append fragment (render-menu-item "#" (format-name (:last_name author) (:first_name author) )
-            "data-author-id"  (:id author) )) )
+	        (append fragment (render-menu-item "#" (format-name (:last_name author) (:first_name author) )
+              "data-author-id"  (:id author) ))
+	    )
         (append report-details fragment)))
 
 (defn render-author-details [author]
@@ -666,10 +668,10 @@
   (let[ report-details  (by-id "report-details")
         fragment (.createDocumentFragment js/document) id (:id category)]
         (append fragment
-          (render-menu-item (format "Display %s Books" (:title category)) "data-books-for-category-id" (:id category)))
+          (render-menu-item (gstring/format "Display %s Books" (:title category)) "data-books-for-category-id" (:id category)))
         (clear-menu-list)
         (render-entity-menu "category" (:id category))
-        (set-menu-header (format "Category - %s"  (:title category)  ))
+        (set-menu-header (gstring/format "Category - %s"  (:title category)  ))
         (append report-details fragment)) )
 
 ;; View of book titles categorized by the value represented in the function parameter "category".
@@ -685,7 +687,7 @@
                   (append fragment (render-menu-item (:title b) "data-book-id" (:id b)))
                 ) ))))
         (clear-menu-list)
-        (set-menu-header (format "%s - %s"  (:title category) "Books" ))
+        (set-menu-header (gstring/format "%s - %s"  (:title category) "Books" ))
         (no-data-message fragment "No books found for this category." "")
         (append report-details fragment)))
 
@@ -705,7 +707,7 @@
                 )))) )
       (clear-menu-list)
       (render-relationship-menu "bookCategory" "book" (:id book))
-      (set-menu-header (format "Categories for: %s" (:title book) ) "data-book-id" (:id book)  )
+      (set-menu-header (gstring/format "Categories for: %s" (:title book) ) "data-book-id" (:id book)  )
       (no-data-message fragment "No Categoried Found for this Book." "")
       (append report-details fragment)))
 
@@ -732,7 +734,7 @@
         )
       )
       (clear-menu-list)
-      (set-menu-header (format "Reviews of: %s" (:title book) ) "data-book-id" (:id book)  )
+      (set-menu-header (gstring/format "Reviews of: %s" (:title book) ) "data-book-id" (:id book)  )
       (no-data-message-row table "No Reviews Found." )
       (append report-details table)))
 
@@ -748,7 +750,7 @@
           (aset (.-firstChild message-div)   "innerText" message)))
 
 (defn render-http-exception [status] 
-  (let [ message (format "Network Exception - HTTP code %d" status)]
+  (let [ message (gstring/format "Network Exception - HTTP code %d" status)]
   (render-error-response message)))
 
 (defn create-option-elem 
@@ -1273,7 +1275,7 @@
           last-name-val (get-input-control-value "last_name") 
           encoded-first-name  (js/encodeURIComponent first-name-val)  
           encoded-last-name  (js/encodeURIComponent last-name-val)  
-          url (format "../rest/add/authors/%s/%s" encoded-first-name encoded-last-name) ]
+          url (gstring/format "../rest/add/authors/%s/%s" encoded-first-name encoded-last-name) ]
       (do-ajax "POST" url crud-response-handler) ) )
 
 
@@ -1283,13 +1285,13 @@
           author-id (get-input-control-value "author-id") 
           encoded-first-name  (js/encodeURIComponent first-name-val)  
           encoded-last-name  (js/encodeURIComponent last-name-val)  
-          url (format "../rest/modify/authors/%d/%s/%s" author-id encoded-first-name encoded-last-name)]
+          url (gstring/format "../rest/modify/authors/%d/%s/%s" author-id encoded-first-name encoded-last-name)]
       (do-ajax "PUT" url crud-response-handler) ) )
 
 
 (defn submit-del-author []
   (let [  author-id (get-input-control-value "author-id") 
-          url (format "../rest/delete/authors/%d" author-id) ]
+          url (gstring/format "../rest/delete/authors/%d" author-id) ]
           (do-ajax "DELETE" url crud-response-handler) ) )
 
 (defn submit-add-book []
@@ -1298,7 +1300,7 @@
         title-val (aget title-elem "value")
         author-id (aget author-elem "value")
         encoded-title  (js/encodeURIComponent title-val)  
-        url (format "../rest/add/book/set/%d/%s" author-id encoded-title) ]
+        url (gstring/format "../rest/add/book/set/%d/%s" author-id encoded-title) ]
         (do-ajax "POST" url crud-response-handler) ) )
 
 (defn submit-mod-book []
@@ -1309,32 +1311,32 @@
         author-id (aget author-elem "value")
         book-id (aget id-elem "value")
         encoded-title  (js/encodeURIComponent title-val)  
-        url (format "../rest/modify/book/set/%d/%d/%s" book-id author-id encoded-title) ]
+        url (gstring/format "../rest/modify/book/set/%d/%d/%s" book-id author-id encoded-title) ]
         (do-ajax "PUT" url crud-response-handler) ) )
 
 (defn submit-del-book []
   (let [  id-elem (by-id "book-id")
           book-id (aget id-elem "value")
-          url (format "../rest/delete/book/%d" book-id )]
+          url (gstring/format "../rest/delete/book/%d" book-id )]
           (do-ajax "DELETE" url crud-response-handler) ))
 
 (defn submit-add-category []
   (let [  title-val (get-input-control-value "title") 
           encoded-title  (js/encodeURIComponent title-val)  
-          url (format "../rest/add/category/%s" encoded-title ) ]
+          url (gstring/format "../rest/add/category/%s" encoded-title ) ]
           (do-ajax "POST" url crud-response-handler) ) )
 
 (defn submit-mod-category []
   (let[ title-val (get-input-control-value "title") 
         category-id (get-input-control-value "category-id") 
         encoded-title  (js/encodeURIComponent title-val)  
-        url (format "../rest/modify/category/%d/%s" category-id encoded-title) ]
+        url (gstring/format "../rest/modify/category/%d/%s" category-id encoded-title) ]
         (do-ajax "PUT" url crud-response-handler) ) )
 
 (defn submit-del-category []
   (let[ id-elem (by-id "category-id")
         category-id (aget id-elem "value")
-        url (format "../rest/delete/category/%d" category-id ) ]
+        url (gstring/format "../rest/delete/category/%d" category-id ) ]
         (do-ajax "DELETE" url crud-response-handler)))
 
 (defn submit-add-review []
@@ -1345,7 +1347,7 @@
         stars-val (aget stars-elem "value")
         book-id (aget book-elem "value")
         encoded-body  (js/encodeURIComponent body-val)
-        url (format "../rest/add/review/%s/%d/%d" encoded-body stars-val book-id) ]
+        url (gstring/format "../rest/add/review/%s/%d/%d" encoded-body stars-val book-id) ]
         (do-ajax "POST" url crud-response-handler) ) )
 
 (defn submit-mod-review []
@@ -1357,30 +1359,30 @@
         stars-val (aget stars-elem "value")
         book-id (aget book-elem "value")
         encoded-body  (js/encodeURIComponent body-val)
-        url (format "../rest/modify/review/%d/%s/%d/%d" review-id encoded-body stars-val book-id) ]
+        url (gstring/format "../rest/modify/review/%d/%s/%d/%d" review-id encoded-body stars-val book-id) ]
         (do-ajax "PUT" url crud-response-handler) ) )
 
 (defn submit-del-review []
   (let [  review-id (get-input-control-value "review-id") 
-          url (format "../rest/delete/review/%d" review-id)]
+          url (gstring/format "../rest/delete/review/%d" review-id)]
           (do-ajax "DELETE" url crud-response-handler) ) )
 
 (defn submit-add-bookCategory []
   (let [  book-id (get-input-control-value "book-id") 
           category-id (get-input-control-value "category-select-id") 
-          url (format "../rest/add/book_category/%d/%d" book-id category-id ) ]
+          url (gstring/format "../rest/add/book_category/%d/%d" book-id category-id ) ]
           (do-ajax "POST" url crud-response-handler) ) )
 
 (defn submit-mod-bookCategory []
   (let [  book-category-id (get-input-control-value "book-category-id")
           book-id (get-input-control-value "book-id") 
           category-id (get-input-control-value "category-select-id") 
-          url (format "../rest/modify/book_category/%d/%d/%d" book-category-id book-id category-id ) ]
+          url (gstring/format "../rest/modify/book_category/%d/%d/%d" book-category-id book-id category-id ) ]
           (do-ajax "PUT" url crud-response-handler) ) )
 
 (defn submit-del-bookCategory []
   (let [  book-category-id (get-input-control-value "book-category-id") 
-          url (format "../rest/delete/book_category/%d" book-category-id)]
+          url (gstring/format "../rest/delete/book_category/%d" book-category-id)]
           (do-ajax "DELETE" url crud-response-handler) ) )
 
 (defn get-parent-dataset [elem]
